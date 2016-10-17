@@ -3,19 +3,19 @@
 
 class CShaderProgram {
 public:
-	void createProgram();
-	void deleteProgram();
+  void createProgram();
+  void deleteProgram();
 
-	bool addShaderToProgram(CShader * shShader);
-	bool linkProgram();
+  bool addShaderToProgram(CShader *shShader);
+  bool linkProgram();
 
-	void useProgram();
+  void useProgram();
 
-	int getProgramID();
+  int getProgramID();
 
-	CShaderProgram();
+  CShaderProgram();
 
 public:
-	int uiProgram;
-	bool bLinked=0;
+  int uiProgram;
+  bool bLinked = 0;
 };
