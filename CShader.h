@@ -7,12 +7,12 @@ public:
 	void deleteShader();
 
 	bool isLoaded();
-	unsigned int getShaderID();
+	int getShaderID();
 
 	CShader();
 
-private:
-	unsigned int uiShader; //ID of shader
+public:
+	int uiShader; //ID of shader
 	int iType; //GL_VERTEX_SHADER, GL_FRAGMENT_SHADER ...
 	bool bLoaded; //if shader was loaded and compiled
 };

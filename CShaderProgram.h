@@ -11,11 +11,11 @@ public:
 
 	void useProgram();
 
-	unsigned int getProgramID();
+	int getProgramID();
 
 	CShaderProgram();
 
-private:
-	unsigned int uiProgram;
+public:
+	int uiProgram;
 	bool bLinked=0;
 };

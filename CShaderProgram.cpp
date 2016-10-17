@@ -1,7 +1,6 @@
 #include<string>
 #include"CShaderProgram.h"
 #include "glad\include\glad\glad.h"
-
 CShaderProgram::CShaderProgram() {
 }
 
@@ -24,7 +23,7 @@ void CShaderProgram::useProgram() {
 		glUseProgram(uiProgram);
 	}
 }
-unsigned int CShaderProgram::getProgramID() {
+int CShaderProgram::getProgramID() {
 	return uiProgram;
 }
 

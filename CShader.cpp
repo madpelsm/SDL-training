@@ -19,23 +19,38 @@ bool CShader::loadShader(std::string sFile, int a_iType) {
 	uiShader = glCreateShader(a_iType);
 
 	const char *c_str = str.c_str();
-	glShaderSource(uiShader, 1, &c_str, NULL);
+	if (uiShader == 0) {
+		std::cout << "error when creating shader" << std::endl;
+	}
+	glShaderSource(uiShader, 1, &c_str, nullptr);
 	glCompileShader(uiShader);
 
 
-	int iCompilationStatus;
-	glGetShaderiv(uiShader, GL_COMPILE_STATUS, &iCompilationStatus);
 
-	if (iCompilationStatus == GL_FALSE)return false;
+	GLint isCompiled = 0;
+	glGetShaderiv(uiShader, GL_COMPILE_STATUS, &isCompiled);
+	if (isCompiled == GL_FALSE)
+	{
+		GLint maxLength = 0;
+		glGetShaderiv(uiShader, GL_INFO_LOG_LENGTH, &maxLength);
+
+		// The maxLength includes the NULL character
+		std::vector<GLchar> errorLog(maxLength);
+		glGetShaderInfoLog(uiShader, maxLength, &maxLength, &errorLog[0]);
+
+		// Provide the infolog in whatever manor you deem best.
+		// Exit with failure.
+		glDeleteShader(uiShader); // Don't leak the shader.
+		return false;
+	}
 	iType = a_iType;
 	bLoaded = true;
-
 	return 1;
 };
 bool CShader::isLoaded() {
 	return bLoaded;
 };
-unsigned int CShader::getShaderID() {
+int CShader::getShaderID() {
 	return uiShader;
 };
 void CShader::deleteShader() {
