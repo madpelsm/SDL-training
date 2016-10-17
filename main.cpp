@@ -28,7 +28,7 @@ CShader shVertex, shFragment;
 CShaderProgram spMain;
 
 SDL_GLContext mainContext = nullptr;
-int indices[] = { 0,1,2 };
+GLuint indices[] = { 0,1,2 };
 void resize();
 void resize() {
 	int width, height;
@@ -38,16 +38,10 @@ void resize() {
 	h = height;
 	glViewport(0, 0, w, h);
 }
-float v[] = { -1,0,1,
-0,1,1,
-1,-1,1
+float v[] = { -1,0,1, 1,0,0,
+0,1,1, 0,1,0,
+1,-1,1, 0,0,1
 };
-float c[] = {
-	1,0,0,
-	0,1,0,
-	0,0,1
-};
-
 
 int main(int argc, char* args[]) {
 	if (!Initialize()) {
@@ -61,13 +55,13 @@ int main(int argc, char* args[]) {
 		render();
 
 		while (SDL_PollEvent(&e)) {
-			if (e.type == SDL_QUIT || e.type == SDLK_ESCAPE) {
+			if (e.type == SDL_QUIT || e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
 				exit = true;
 			}
 			if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
 				resize();
 			}	
-			if (e.window.event == SDLK_f) {
+			if (e.key.keysym.scancode==SDL_SCANCODE_F) {
 				if (SDL_GetWindowFlags(window)& SDL_WINDOW_FULLSCREEN) {
 					SDL_SetWindowFullscreen(window, 0);
 					resize();
@@ -111,7 +105,7 @@ bool Initialize() {
 	initOpenGL();
 	return true;
 }
-
+GLuint vao,vbo,ibuffer;
 void initOpenGL() {
 	mainContext = SDL_GL_CreateContext(window);
 	if (mainContext == nullptr) {
@@ -124,19 +118,26 @@ void initOpenGL() {
 	glEnable(GL_MULTISAMPLE);
 	glViewport(0, 0, width, height);
 	glClearColor(0,0,0, 1);
-
-	glGenVertexArrays(1, &vertexArrayID);
-	glGenBuffers(1, &bufferID);
-	glGenBuffers(1, &colorID);
-
-
-	glBindVertexArray(vertexArrayID);
-
-	//color info
-	glBindBuffer(GL_ARRAY_BUFFER, colorID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(c), c, GL_DYNAMIC_DRAW);
+	//gen vao
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	//gen vbo
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	//copy to vbo
+	glBufferData(GL_ARRAY_BUFFER, sizeof(v), v, GL_STATIC_DRAW);
+	//setup vertex attrib
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float)*6, 0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);//stride is zero because in different arrays, ie tightly packed
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (const void*)(sizeof(float)*3));
+
+	glGenBuffers(1, &ibuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indices), indices, GL_STATIC_DRAW);
+	
+	glBindVertexArray(0);
+
 
 
 	shVertex.loadShader("shader.vert", GL_VERTEX_SHADER);
@@ -191,14 +192,8 @@ void render() {
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glBindBuffer(GL_ARRAY_BUFFER, bufferID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(v), v, GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-	glBindVertexArray(vertexArrayID);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glBindVertexArray(vao);
+	glDrawElements(GL_TRIANGLES, ARRAYSIZE(indices), GL_UNSIGNED_INT, (void*)0);
+	
 	SDL_GL_SwapWindow(window);
-	//glDeleteBuffers(1, &bufferID);
-	//glDeleteBuffers(1, &colorID);
 }
