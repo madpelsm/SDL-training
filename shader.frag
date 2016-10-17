@@ -1,9 +1,8 @@
 #version 330
 
 smooth in vec3 theColor;
-out vec4 outputColor;
-
+uniform float time;
 void main()
 {
-	outputColor = vec4(theColor, 1.0);
+	gl_FragColor = vec4(theColor, 1.0);
 }
