@@ -40,6 +40,13 @@ void resize() {
     SDL_GetWindowSize(window, &width, &height);
     w = width;
     h = height;
+
+	int iProjLoc = glGetUniformLocation(spMain.getProgramID(), "proj");
+	float fov = 0.45f;
+	glm::mat4 mProj =
+		glm::perspective(fov, (float)w / (float)h, 0.001f, 1000.0f);
+
+	glUniformMatrix4fv(iProjLoc, 1, GL_FALSE, glm::value_ptr(mProj));
     glViewport(0, 0, w, h);
 }
 
@@ -88,7 +95,7 @@ bool Initialize() {
 
     window = SDL_CreateWindow("OPENGL test", SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED, w, h,
-                              SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+                              SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE|SDL_WINDOW_ALLOW_HIGHDPI);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -97,8 +104,8 @@ bool Initialize() {
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 4);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
     if (window == nullptr) {
         printf("window failed");

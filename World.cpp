@@ -27,8 +27,7 @@ void World::readLevel(std::string fileLocation) {
 			if (ss.peek() == ',')
 				ss.ignore();
 		}
-		for (i = 0; i< this->vboArray.size(); i++)
-			std::cout << this->vboArray.at(i) << std::endl;
+		std::cout << "loaded level succesfully" << std::endl;
 	}
 	else std::cout << "Unable to open file" << std::endl;
 
