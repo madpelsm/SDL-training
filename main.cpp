@@ -28,7 +28,7 @@ CShader shVertex, shFragment;
 CShaderProgram spMain;
 
 SDL_GLContext mainContext = nullptr;
-GLuint indices[] = {0, 1, 2};
+GLuint indices[] = {0, 1, 2,999,3,4,5,999,6,7,8};
 void resize();
 void resize() {
     int width, height;
@@ -38,7 +38,17 @@ void resize() {
     h = height;
     glViewport(0, 0, w, h);
 }
-float v[] = {-1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, -1, 1, 0, 0, 1};
+float v[] = {
+-1, 0, 1, 1, 0, 0, 
+0, 1, 1, 0, 1, 0, 
+1, -1, 1, 0, 0, 1,
+2,-1,1,1,0,0,
+2,1,1,0,1,0,
+3,0,0,0,0,1,
+0,2,0,1,0,0,
+-1,3,0,0,1,0,
+1,3,0,0,0,1
+};
 
 int main(int argc, char *args[]) {
     if (!Initialize()) {
@@ -108,7 +118,8 @@ void initOpenGL() {
     gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
     int width, height;
     SDL_GetWindowSize(window, &width, &height);
-
+	glEnable(GL_PRIMITIVE_RESTART);
+	glPrimitiveRestartIndex(999);
     glEnable(GL_MULTISAMPLE);
     glViewport(0, 0, width, height);
     glClearColor(0, 0, 0, 1);
@@ -151,7 +162,7 @@ void initOpenGL() {
     float fov = 0.45f;
     glm::mat4 mProj =
         glm::perspective(fov, (float)w / (float)h, 0.001f, 1000.0f);
-    glm::mat4 mcam = glm::lookAt(glm::vec3(0, 1, 10), glm::vec3(0.0f),
+    glm::mat4 mcam = glm::lookAt(glm::vec3(1, 2, 30), glm::vec3(0.0f),
                                  glm::vec3(0.0f, 1.0f, 0.0f));
 
     glm::vec3 t(0, 0, 0);
@@ -185,8 +196,8 @@ void render() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, ARRAYSIZE(indices), GL_UNSIGNED_INT,
-                   (void *)0);
+    glDrawElements(GL_TRIANGLES,ARRAYSIZE(v)/3, GL_UNSIGNED_INT,
+                   (void *)0);//3 vertices per triangle
 
     SDL_GL_SwapWindow(window);
 }
