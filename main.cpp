@@ -26,17 +26,17 @@ void render();
 void initOpenGL();
 
 float v[] = {
-	-1,0,0,1,0,0,0,0,1,
-	1,0,0,0,1,0,0,0,1,
-	1,1,0,0,0,1,0,0,1,
+	-1.0f,0,0,1,0,0,0,1,0,
+	2,0,0,1,0,0,0,1,0,
+	1,1,0,1,0,0,0,1,0,
 
-	-1,0,0,1,0,0,0,0,1,
-	-1,1,0,0,1,0,0,0,1,
-	1,1,0,0,0,1,0,0,1,
+	-1,0,0,1,0,0,0,1,1,
+	-1,1,0,0,1,0,0,1,1,
+	1,1,0,0,0,1,0,1,1,
 
-	-1,1,0,1,0,0,0,1,0,
-	-1,1,-1,0,1,0,0,1,0,
-	1,1,-1,0,0,1,0,1,0
+	-2,1,0,1,0,0,0,0,1,
+	-2,0,-2,0,1,0,0,0,1,
+	0,1,-1,0,0,1,0,0,1
 };
 GLuint bufferID, indicesID, colorID, vertexArrayID;
 
@@ -46,7 +46,7 @@ CShader shVertex, shFragment;
 CShaderProgram spMain;
 
 SDL_GLContext mainContext = nullptr;
-GLuint indices[] = {0, 1, 2,999,3,4,5,999,6,7,8};
+GLuint indices[] = {0, 1, 2,3,4,5,6,7,8};
 void resize();
 void resize() {
     int width, height;
@@ -147,9 +147,9 @@ void initOpenGL() {
 	int width, height;
 	SDL_GetWindowSize(window, &width, &height);
 	glViewport(0, 0, width, height);
-	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_MULTISAMPLE);/*
 	glEnable(GL_PRIMITIVE_RESTART);
-	glPrimitiveRestartIndex(999);
+	glPrimitiveRestartIndex(999);*/
     glClearColor(1, 1,1, 1);
     // gen vao
     glGenVertexArrays(1, &vao);
@@ -183,7 +183,7 @@ void initOpenGL() {
     spMain.addShaderToProgram(&shVertex);
     spMain.addShaderToProgram(&shFragment);
 	//create light after creating program
-	OmniLight l1(0, 0, 10, 1.0f, 1.0f, 1.0f);
+	OmniLight l1(0, 10, 1, 1.0f, 1.0f, 1.0f);
 	l1.addLightToProgram(spMain.getProgramID());
     spMain.linkProgram();
     spMain.useProgram();
@@ -195,7 +195,7 @@ void initOpenGL() {
     float fov = 0.45f;
     glm::mat4 mProj =
         glm::perspective(fov, (float)w / (float)h, 0.001f, 1000.0f);
-    glm::mat4 mcam = glm::lookAt(glm::vec3(1, 2, 30), glm::vec3(0.0f),
+    glm::mat4 mcam = glm::lookAt(glm::vec3(1, 2, 10), glm::vec3(0.0f),
                                  glm::vec3(0.0f, 1.0f, 0.0f));
 
     glm::vec3 t(0, 0, 0);

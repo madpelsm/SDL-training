@@ -8,17 +8,16 @@ layout (location = 2) in vec3 normal;
 uniform mat4 proj;
 uniform mat4 camera;
 
-uniform vec4 lightPos;
-uniform vec4 lightParams;
+uniform vec3 lightPos;
+uniform vec3 lightParams;
 
-out vec3 endColor;
+out vec3 theColor;
 void main()
 {
-
-	gl_Position =proj*camera*vec4(inPosition, 1.0);
-
+	vec4 projectedPos = proj*camera*vec4(inPosition, 1.0);
+	gl_Position =projectedPos;
 	vec3 lightDir = inPosition - lightPos;
 	float distance = dot(lightDir,lightDir);
-	vec3 lightIntensity = ( 1/ ( 1+sqrt(distance) ) )*normalize(lightDir);
-	endColor = lightParams*dot( normalize(normal) * lightIntensity );
+	vec3 lightIntensity = ( 1/ ( 1+(distance) ) )*normalize(lightDir);
+	theColor = 10*inColor*dot( (normal) , lightIntensity );
 }
