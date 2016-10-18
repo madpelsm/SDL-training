@@ -11,7 +11,7 @@ uniform mat4 camera;
 uniform vec4 lightPos;
 uniform vec4 lightParams;
 
-out vec3 theColor;
+out vec3 endColor;
 void main()
 {
 
@@ -19,7 +19,6 @@ void main()
 
 	vec3 lightDir = inPosition - lightPos;
 	float distance = dot(lightDir,lightDir);
-	vec3 lightIntensity = ( 1/ ( 1+sqrt(distance) ) ) * lightParams * normalize(lightDir);
-	vec3 endColor = inColor*dot( normalize(normal) * lightIntensity );
-	theColor = endColor;
+	vec3 lightIntensity = ( 1/ ( 1+sqrt(distance) ) )*normalize(lightDir);
+	endColor = lightParams*dot( normalize(normal) * lightIntensity );
 }

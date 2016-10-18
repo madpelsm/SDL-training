@@ -182,7 +182,7 @@ void initOpenGL() {
     spMain.createProgram();
     spMain.addShaderToProgram(&shVertex);
     spMain.addShaderToProgram(&shFragment);
-	//create light
+	//create light after creating program
 	OmniLight l1(0, 0, 10, 1.0f, 1.0f, 1.0f);
 	l1.addLightToProgram(spMain.getProgramID());
     spMain.linkProgram();
@@ -232,7 +232,7 @@ void render() {
 	glUniformMatrix4fv(transLoc, 1, GL_FALSE, glm::value_ptr(rot));
 
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, ARRAYSIZE(v), GL_UNSIGNED_INT,
+	glDrawElements(GL_TRIANGLES, ARRAYSIZE(v)/3, GL_UNSIGNED_INT,
 		(void *)0);//3 vertices per triangle
 	frames++;
 	dur = (std::clock() - start) / ((double)CLOCKS_PER_SEC);
