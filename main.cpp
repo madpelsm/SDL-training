@@ -10,10 +10,11 @@
 #include <vector>
 #include <ctime>
 #include "World.h"
+#include "Light.h"
 #define GLM_FORCE_RADIANS
 #define BUFFER_OFFSET(i) ((void *)(i))
-int w = 800;
-int h = 600;
+int w = 1200;
+int h = 800;
 int frames = 0;
 float x = -1;
 
@@ -24,6 +25,19 @@ void Close();
 void render();
 void initOpenGL();
 
+float v[] = {
+	-1,0,0,1,0,0,0,0,1,
+	1,0,0,0,1,0,0,0,1,
+	1,1,0,0,0,1,0,0,1,
+
+	-1,0,0,1,0,0,0,0,1,
+	-1,1,0,0,1,0,0,0,1,
+	1,1,0,0,0,1,0,0,1,
+
+	-1,1,0,1,0,0,0,1,0,
+	-1,1,-1,0,1,0,0,1,0,
+	1,1,-1,0,0,1,0,1,0
+};
 GLuint bufferID, indicesID, colorID, vertexArrayID;
 
 SDL_Window *window = nullptr;
@@ -144,13 +158,16 @@ void initOpenGL() {
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     // copy to vbo
-	glBufferData(GL_ARRAY_BUFFER, w1.vboArray.size()*sizeof(float), &w1.vboArray[0] , GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(v), v , GL_STATIC_DRAW);
     // setup vertex attrib
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 9, 0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6,
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 9,
                           (const void *)(sizeof(float) * 3));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 9,
+						  (const void *)(sizeof(float) * 6));
 
     glGenBuffers(1, &ibuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuffer);
@@ -165,7 +182,9 @@ void initOpenGL() {
     spMain.createProgram();
     spMain.addShaderToProgram(&shVertex);
     spMain.addShaderToProgram(&shFragment);
-
+	//create light
+	OmniLight l1(0, 0, 10, 1.0f, 1.0f, 1.0f);
+	l1.addLightToProgram(spMain.getProgramID());
     spMain.linkProgram();
     spMain.useProgram();
 
@@ -208,14 +227,14 @@ void render() {
 	double deltaT = (std::clock() - startT) / ((double)CLOCKS_PER_SEC);
 	angle += (float)deltaT;
 	startT = std::clock();
-	glm::mat4 rot = glm::rotate(glm::mat4(1), angle, glm::vec3(0, 1, 0));
+	glm::mat4 rot = glm::rotate(glm::mat4(1), angle, glm::vec3(1,0, 0));
 	GLint transLoc = glGetUniformLocation(spMain.getProgramID(), "trans");
 	glUniformMatrix4fv(transLoc, 1, GL_FALSE, glm::value_ptr(rot));
+
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, w1.vboArray.size(), GL_UNSIGNED_INT,
+	glDrawElements(GL_TRIANGLES, ARRAYSIZE(v), GL_UNSIGNED_INT,
 		(void *)0);//3 vertices per triangle
 	frames++;
-
 	dur = (std::clock() - start) / ((double)CLOCKS_PER_SEC);
 	if (dur > 1) {
 		std::cout << "FPS: " << frames << std::endl;

@@ -4,7 +4,6 @@
 #include "World.h"
 #include <fstream>
 #include <sstream>
-
 void World::readLevel(std::string fileLocation) {
 	std::string line;
 	std::ifstream myfile(fileLocation);

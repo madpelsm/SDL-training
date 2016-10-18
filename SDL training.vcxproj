@@ -119,6 +119,7 @@
   <ItemGroup>
     <ClCompile Include="CShader.cpp" />
     <ClCompile Include="glad\src\glad.c" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="CShaderProgram.cpp" />
     <ClCompile Include="World.cpp" />
@@ -126,6 +127,7 @@
   <ItemGroup>
     <ClInclude Include="CShader.h" />
     <ClInclude Include="CShaderProgram.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
