@@ -8,13 +8,17 @@
 #include <iostream>
 #include <stdio.h>
 #include <vector>
+#include <ctime>
+#include "World.h"
 #define GLM_FORCE_RADIANS
 #define BUFFER_OFFSET(i) ((void *)(i))
-
 int w = 800;
 int h = 600;
-
+int frames = 0;
 float x = -1;
+
+std::clock_t start; //return the amount of ticks -> get deltaTicks and devide by ticks/s
+double dur;
 bool Initialize();
 void Close();
 void render();
@@ -38,19 +42,11 @@ void resize() {
     h = height;
     glViewport(0, 0, w, h);
 }
-float v[] = {
--1, 0, 1, 1, 0, 0, 
-0, 1, 1, 0, 1, 0, 
-1, -1, 1, 0, 0, 1,
-2,-1,1,1,0,0,
-2,1,1,0,1,0,
-3,0,0,0,0,1,
-0,2,0,1,0,0,
--1,3,0,0,1,0,
-1,3,0,0,0,1
-};
 
+World w1;
 int main(int argc, char *args[]) {
+	w1.readLevel("test.da");
+	start = std::clock();
     if (!Initialize()) {
         return -1;
     }
@@ -85,44 +81,55 @@ int main(int argc, char *args[]) {
 }
 
 bool Initialize() {
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 0);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-    SDL_GL_SetSwapInterval(1);
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
         printf("something went wrong");
         return false;
     }
 
-    window = SDL_CreateWindow("my sdl game", SDL_WINDOWPOS_CENTERED,
+    window = SDL_CreateWindow("OPENGL test", SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED, w, h,
                               SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 4);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
     if (window == nullptr) {
         printf("window failed");
         return false;
     }
+
+
+	mainContext = SDL_GL_CreateContext(window);
     screen = SDL_GetWindowSurface(window);
+	
+	
     initOpenGL();
     return true;
 }
 GLuint vao, vbo, ibuffer;
 void initOpenGL() {
-    mainContext = SDL_GL_CreateContext(window);
     if (mainContext == nullptr) {
         printf("Failed to get context \n");
     }
-    gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
-    int width, height;
-    SDL_GetWindowSize(window, &width, &height);
+
+
+	gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
+	
+
+	int width, height;
+	SDL_GetWindowSize(window, &width, &height);
+	glViewport(0, 0, width, height);
+	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_PRIMITIVE_RESTART);
 	glPrimitiveRestartIndex(999);
-    glEnable(GL_MULTISAMPLE);
-    glViewport(0, 0, width, height);
-    glClearColor(0, 0, 0, 1);
+    glClearColor(1, 1,1, 1);
     // gen vao
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -130,7 +137,7 @@ void initOpenGL() {
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     // copy to vbo
-    glBufferData(GL_ARRAY_BUFFER, sizeof(v), v, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, w1.vboArray.size()*sizeof(float), &w1.vboArray[0] , GL_STATIC_DRAW);
     // setup vertex attrib
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
@@ -176,7 +183,7 @@ void initOpenGL() {
     glUniformMatrix4fv(iCamLoc, 1, GL_FALSE, glm::value_ptr(mcam));
     glUniformMatrix4fv(trans, 1, GL_FALSE, glm::value_ptr(trns));
 
-    printf("initialised openGL");
+    printf("initialised openGL\n");
 }
 void Close() {
     spMain.deleteProgram();
@@ -186,18 +193,27 @@ void Close() {
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
-float time;
+float angle = 0;
+std::clock_t startT = std::clock();
 void render() {
-    GLuint uniformLoc = glGetUniformLocation(spMain.getProgramID(), "time");
-    glUniform1f(uniformLoc, time);
 
-    time = (time + 0.01f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	double deltaT = (std::clock() - startT) / ((double)CLOCKS_PER_SEC);
+	angle += (float)deltaT;
+	startT = std::clock();
+	glm::mat4 rot = glm::rotate(glm::mat4(1), angle, glm::vec3(0, 1, 0));
+	GLint transLoc = glGetUniformLocation(spMain.getProgramID(), "trans");
+	glUniformMatrix4fv(transLoc, 1, GL_FALSE, glm::value_ptr(rot));
+	glBindVertexArray(vao);
+	glDrawElements(GL_TRIANGLES, w1.vboArray.size(), GL_UNSIGNED_INT,
+		(void *)0);//3 vertices per triangle
+	frames++;
 
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES,ARRAYSIZE(v)/3, GL_UNSIGNED_INT,
-                   (void *)0);//3 vertices per triangle
-
+	dur = (std::clock() - start) / ((double)CLOCKS_PER_SEC);
+	if (dur > 1) {
+		std::cout << "FPS: " << frames << std::endl;
+		frames = 0;
+		start = std::clock();
+	}
     SDL_GL_SwapWindow(window);
 }

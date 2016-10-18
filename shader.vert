@@ -12,6 +12,6 @@ out vec3 theColor;
 
 void main()
 {
-	gl_Position =vec4(inPosition, 1.0);
+	gl_Position =proj*camera*trans*vec4(inPosition, 1.0);
 	theColor = inColor;
 }
