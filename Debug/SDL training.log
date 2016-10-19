@@ -1,3 +1,4 @@
 ﻿  main.cpp
+c:\users\mathias\documents\visual studio 2015\projects\sdl training\sdl training\main.cpp(152): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
   SDL training.vcxproj -> C:\Users\Mathias\documents\visual studio 2015\Projects\SDL training\Debug\SDL training.exe
   SDL training.vcxproj -> C:\Users\Mathias\documents\visual studio 2015\Projects\SDL training\Debug\SDL training.pdb (Partial PDB)

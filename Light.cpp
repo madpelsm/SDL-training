@@ -30,8 +30,7 @@ OmniLight::OmniLight(float x, float y, float z, float r, float g, float b) {
 }
 void OmniLight::addLightToProgram(int programID) {
 	std::string ln = lightName.c_str();
-	std::cout <<z << std::endl;
-	int iLightPosID = glGetUniformLocation(programID,lightName.c_str());
+	int iLightPosID = glGetUniformLocation(programID,"lightPos");
 	int iLightParam = glGetUniformLocation(programID, lightParam.c_str());
 	glUniform3f(iLightPosID, x, y, z);
 	glUniform3f(iLightParam, r, g, b);

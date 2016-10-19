@@ -24,19 +24,18 @@ bool Initialize();
 void Close();
 void render();
 void initOpenGL();
+float v[] = {//x,y,z,r,g,b nx, ny,nz
+	-1,1,0,1,1,0,0,0,1,
+	2,1,0,1,1,1,0,0,1,
+	1,2,0,1,1,1,0,0,1,
 
-float v[] = {
-	-1.0f,0,0,1,0,0,0,1,0,
-	2,0,0,1,0,0,0,1,0,
-	1,1,0,1,0,0,0,1,0,
+	-1,0.001f,0,1,1,1,0,0,1,
+	-1,1,0,1,1,1,0,0,1,
+	1,1,0,1,1,1,0,0,1,
 
-	-1,0,0,1,0,0,0,1,1,
-	-1,1,0,0,1,0,0,1,1,
-	1,1,0,0,0,1,0,1,1,
-
-	-2,1,0,1,0,0,0,0,1,
-	-2,0,-2,0,1,0,0,0,1,
-	0,1,-1,0,0,1,0,0,1
+	3,1,0,1,1,0,0,0,1,
+	3,0.001f,0,0,1,0,0,0,1,
+	1,2,0,0,0,1,0,0,1
 };
 GLuint bufferID, indicesID, colorID, vertexArrayID;
 
@@ -150,7 +149,7 @@ void initOpenGL() {
 	glEnable(GL_MULTISAMPLE);/*
 	glEnable(GL_PRIMITIVE_RESTART);
 	glPrimitiveRestartIndex(999);*/
-    glClearColor(1, 1,1, 1);
+    glClearColor(0.54,0.8,0.98,1.0);
     // gen vao
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -183,8 +182,6 @@ void initOpenGL() {
     spMain.addShaderToProgram(&shVertex);
     spMain.addShaderToProgram(&shFragment);
 	//create light after creating program
-	OmniLight l1(0, 10, 1, 1.0f, 1.0f, 1.0f);
-	l1.addLightToProgram(spMain.getProgramID());
     spMain.linkProgram();
     spMain.useProgram();
 
@@ -221,11 +218,15 @@ void Close() {
 }
 float angle = 0;
 std::clock_t startT = std::clock();
+
+OmniLight l1(0, 0, 0, 2, 2, 2);
 void render() {
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	double deltaT = (std::clock() - startT) / ((double)CLOCKS_PER_SEC);
 	angle += (float)deltaT;
+    l1.setLightPos(0, 0, 1+sin(angle));
+    l1.addLightToProgram(spMain.getProgramID());
 	startT = std::clock();
 	glm::mat4 rot = glm::rotate(glm::mat4(1), angle, glm::vec3(1,0, 0));
 	GLint transLoc = glGetUniformLocation(spMain.getProgramID(), "trans");
